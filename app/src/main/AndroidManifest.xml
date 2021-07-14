@@ -7,7 +7,7 @@
     The version code is the targeted SDK_VERSION plus 6 digits for our own version code.
     The version name is the targeted Android version followed by - and our own version name.
     -->
-    
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
