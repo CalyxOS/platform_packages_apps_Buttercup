@@ -37,6 +37,10 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 apply from: '../gradle/dependencies.gradle'
