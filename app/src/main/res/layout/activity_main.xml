@@ -13,7 +13,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="@font/roboto_medium"
         android:text="@string/instructions"
-        app:layout_constraintHorizontal_bias="0.12"
+        app:layout_constraintHorizontal_bias="0.19"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
