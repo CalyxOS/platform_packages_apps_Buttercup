@@ -38,6 +38,18 @@ dependencies {
         version { strictly '1.1.0-alpha05' }
     }
 
+    implementation('com.squareup.retrofit2:retrofit') {
+        version { strictly '2.9.0'}
+    }
+
+    implementation('com.squareup.retrofit2:converter-gson') {
+        version { strictly '2.9.0'}
+    }
+
+    implementation('com.google.code.gson:gson') {
+        version { strictly '2.8.7'}
+    }
+
     /**
      * Test Dependencies (do not concern the AOSP build)
      */

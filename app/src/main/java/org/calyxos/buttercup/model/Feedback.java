@@ -1,25 +1,37 @@
 package org.calyxos.buttercup.model;
 
+import org.calyxos.buttercup.model.compat.TicketCompat;
+
 import java.io.Serializable;
 
 public class Feedback implements Serializable {
 
-    private String message;
+    private String subject;
+    private String body;
     private String screenshotUrl;
+    private TicketCompat ticketCompat;
 
-    public Feedback(String message, String screenshotUrl) {
-        this.message = message;
+    public Feedback(String subject, String body, String screenshotUrl, TicketCompat ticketCompat) {
+        this.subject = subject;
+        this.body = body;
         this.screenshotUrl = screenshotUrl;
+        this.ticketCompat = ticketCompat;
     }
 
-    public Feedback() {}
-
-    public String getMessage() {
-        return message;
+    public String getSubject() {
+        return subject;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public String getScreenshotUrl() {
@@ -30,11 +42,21 @@ public class Feedback implements Serializable {
         this.screenshotUrl = screenshotUrl;
     }
 
+    public TicketCompat getTicketCompat() {
+        return ticketCompat;
+    }
+
+    public void setTicketCompat(TicketCompat ticketCompat) {
+        this.ticketCompat = ticketCompat;
+    }
+
     @Override
     public String toString() {
         return "Feedback{" +
-                "message='" + message + '\'' +
+                "subject='" + subject + '\'' +
+                ", body='" + body + '\'' +
                 ", screenshotUrl='" + screenshotUrl + '\'' +
+                ", ticketCompat=" + ticketCompat +
                 '}';
     }
 }
