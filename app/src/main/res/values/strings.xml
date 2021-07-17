@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Buttercup</string>
     <string name="feedback">Feedback</string>
-    <string name="instructions">Supply feedback subject and message below</string>
+    <string name="instructions">Supply feedback subject and message body below</string>
     <string name="subject">Subject</string>
     <string name="message">Message</string>
     <string name="submit">Submit</string>
+    <string name="subject_body_empty">Please supply subject and body of the feedback message.</string>
+    <string name="feedback_sent">Feedback sent successfully.</string>
 </resources>
