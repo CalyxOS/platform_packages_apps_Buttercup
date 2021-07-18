@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18d17035_c584972b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-07-18T01:23:39Z",
+      "side": 1,
+      "message": "Why?\n\nThis should be kept, you can remove any files you don\u0027t need instead, there\u0027s already a few listed in the .gitignore.",
+      "revId": "1bdd67ba6e1753b7029fd69627f1f415374eb9e3",
+      "serverId": "35266860-6252-469c-a67d-185064479fc0"
+    }
+  ]
+}
