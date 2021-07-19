@@ -11,5 +11,8 @@ android_app {
         "androidx.appcompat_appcompat",
         "androidx-constraintlayout_constraintlayout",
         "com.google.android.material_material",
+        "com.squareup.retrofit2_retrofit",
+        "com.squareup.retrofit2_converter-gson",
+        "com.google.code.gson_gson",
     ],
 }
