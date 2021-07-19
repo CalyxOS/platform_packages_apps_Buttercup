@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
+import org.calyxos.buttercup.dialog.AlertDialogFragment;
 import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.network.RequestListener;
 
@@ -14,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FeedbackViewModel feedbackViewModel;
+    private AlertDialogFragment dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,23 +25,31 @@ public class MainActivity extends AppCompatActivity {
 
         feedbackViewModel = new FeedbackViewModel();
 
+        dialog = new AlertDialogFragment();
+
         RequestListener requestListener = new RequestListener() {
             @Override
             public void onInternetError() {
                 binding.progressBar.setVisibility(View.GONE);
-                //TODO show dialog
+
+                dialog.setMessage(getString(R.string.internet_unavailable));
+                dialog.show(getSupportFragmentManager(), "AlertDialog");
             }
 
             @Override
             public void onValidationFailed(String validationErrorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
-                //TODO show dialog
+
+                dialog.setMessage(validationErrorMessage);
+                dialog.show(getSupportFragmentManager(), "AlertDialog");
             }
 
             @Override
             public void onConnectionError(String errorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
-                //TODO show dialog
+
+                dialog.setMessage(errorMessage);
+                dialog.show(getSupportFragmentManager(), "AlertDialog");
             }
 
             @Override
@@ -47,13 +57,17 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.subjectEdit.setText("");
                 binding.bodyEdit.setText("");
-                //TODO show dialog
+
+                dialog.setMessage(getString(R.string.feedback_sent));
+                dialog.show(getSupportFragmentManager(), "AlertDialog");
             }
 
             @Override
             public void onFail(String failMessage) {
                 binding.progressBar.setVisibility(View.GONE);
-                //TODO show dialog
+
+                dialog.setMessage(failMessage);
+                dialog.show(getSupportFragmentManager(), "AlertDialog");
             }
         };
 

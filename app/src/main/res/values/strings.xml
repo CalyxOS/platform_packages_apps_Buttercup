@@ -7,4 +7,6 @@
     <string name="submit">Submit</string>
     <string name="subject_body_empty">Please supply subject and body of the feedback message.</string>
     <string name="feedback_sent">Feedback sent successfully.</string>
+    <string name="ok">OK</string>
+    <string name="internet_unavailable">Internet connection not available.</string>
 </resources>
