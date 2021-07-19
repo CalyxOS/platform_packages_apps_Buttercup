@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef306d49_b481ae32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000000
+      },
+      "writtenOn": "2021-07-19T16:54:21Z",
+      "side": 1,
+      "message": "These need to be actually added, since they likely aren\u0027t present in the OS / used by other apps.\n\nI will do it and test before merging.",
+      "revId": "2972ec5c19e429506e3ff156f2a2bdd04c2c69e8",
+      "serverId": "35266860-6252-469c-a67d-185064479fc0"
+    }
+  ]
+}
