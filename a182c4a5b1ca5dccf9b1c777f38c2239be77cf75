@@ -16,6 +16,24 @@
       "message": "Roboto already exists on the system, we don\u0027t need to add it here.",
       "revId": "a182c4a5b1ca5dccf9b1c777f38c2239be77cf75",
       "serverId": "35266860-6252-469c-a67d-185064479fc0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b5aea5f_b55e545b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2021-07-19T09:11:24Z",
+      "side": 1,
+      "message": "Right",
+      "parentUuid": "927ecd0a_6a7acbe8",
+      "revId": "a182c4a5b1ca5dccf9b1c777f38c2239be77cf75",
+      "serverId": "35266860-6252-469c-a67d-185064479fc0"
     }
   ]
 }
