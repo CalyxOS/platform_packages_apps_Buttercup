@@ -9,4 +9,9 @@
     <string name="feedback_sent">Feedback sent successfully.</string>
     <string name="ok">OK</string>
     <string name="internet_unavailable">Internet connection not available.</string>
+    <string name="logcat_btn_tooltip">Click to send logcat for analysis</string>
+    <string name="send_logcat">Send Logcat</string>
+    <string name="sending_logcat">Sending logcat…</string>
+    <string name="logcat_sent">Logcat sent.</string>
+    <string name="logcat_not_retrieved">Error. Logcat wasn\'t retrieved.</string>
 </resources>
