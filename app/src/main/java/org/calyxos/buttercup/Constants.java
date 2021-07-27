@@ -11,4 +11,5 @@ public class Constants {
     public static final String ARTICLE_TYPE = "note";
     public static final String BEARER = "Bearer ";
     public static final String TOKEN_EQUALS = "Token token=";
+    public static final String MIME_TYPE_TEXT = "text/plain";
 }

@@ -1,9 +1,15 @@
 package org.calyxos.buttercup;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
@@ -77,6 +83,54 @@ public class MainActivity extends AppCompatActivity {
             //TODO add tags, links and attachments features later
             feedbackViewModel.submitFeedback(MainActivity.this, binding.subjectEdit.getText().toString(),
                     binding.bodyEdit.getText().toString(), requestListener);
+        });
+
+        binding.sendLogcatTxtBtn.setOnClickListener(v -> {
+            //TODO enable user pick a date of the logcat (DatePicker)
+            dialog.setMessage(getString(R.string.sending_logcat));
+            dialog.show(getSupportFragmentManager(), "AlertDialog");
+
+            feedbackViewModel.submitLogcat(MainActivity.this, new RequestListener() {
+                @Override
+                public void onInternetError() {
+                    dialog.dismiss();
+
+                    dialog.setMessage(getString(R.string.internet_unavailable));
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                }
+
+                @Override
+                public void onValidationFailed(String validationErrorMessage) {
+                    dialog.dismiss();
+
+                    dialog.setMessage(validationErrorMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                }
+
+                @Override
+                public void onConnectionError(String errorMessage) {
+                    dialog.dismiss();
+
+                    dialog.setMessage(errorMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                }
+
+                @Override
+                public void onSuccess() {
+                    dialog.dismiss();
+
+                    dialog.setMessage(getString(R.string.logcat_sent));
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                }
+
+                @Override
+                public void onFail(String failMessage) {
+                    dialog.dismiss();
+
+                    dialog.setMessage(failMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                }
+            });
         });
     }
 }
