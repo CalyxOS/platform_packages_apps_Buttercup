@@ -15,6 +15,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private FeedbackViewModel feedbackViewModel;
     private AlertDialogFragment dialog;
+    private String message = "";
+    private boolean resumeDialog = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,44 +88,81 @@ public class MainActivity extends AppCompatActivity {
             feedbackViewModel.submitLogcat(MainActivity.this, new RequestListener() {
                 @Override
                 public void onInternetError() {
-                    dialog.dismiss();
+                    dialog.dismissAllowingStateLoss();
 
-                    dialog.setMessage(getString(R.string.internet_unavailable));
-                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    try {
+                        dialog.setMessage(getString(R.string.internet_unavailable));
+                        dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    } catch (IllegalStateException e){
+                        showDialogOnResume(getString(R.string.internet_unavailable));
+                    }
                 }
 
                 @Override
                 public void onValidationFailed(String validationErrorMessage) {
-                    dialog.dismiss();
+                    dialog.dismissAllowingStateLoss();
 
-                    dialog.setMessage(validationErrorMessage);
-                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    try {
+                        dialog.setMessage(validationErrorMessage);
+                        dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    } catch (IllegalStateException e){
+                        showDialogOnResume(validationErrorMessage);
+                    }
                 }
 
                 @Override
                 public void onConnectionError(String errorMessage) {
-                    dialog.dismiss();
+                    dialog.dismissAllowingStateLoss();
 
-                    dialog.setMessage(errorMessage);
-                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    try {
+                        dialog.setMessage(errorMessage);
+                        dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    } catch (IllegalStateException e){
+                        showDialogOnResume(errorMessage);
+                    }
                 }
 
                 @Override
                 public void onSuccess() {
-                    dialog.dismiss();
+                    dialog.dismissAllowingStateLoss();
 
-                    dialog.setMessage(getString(R.string.logcat_sent));
-                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    try {
+                        dialog.setMessage(getString(R.string.logcat_sent));
+                        dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    } catch (IllegalStateException e){
+                        showDialogOnResume(getString(R.string.logcat_sent));
+                    }
                 }
 
                 @Override
                 public void onFail(String failMessage) {
-                    dialog.dismiss();
+                    dialog.dismissAllowingStateLoss();
 
-                    dialog.setMessage(failMessage);
-                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    try {
+                        dialog.setMessage(failMessage);
+                        dialog.show(getSupportFragmentManager(), "AlertDialog");
+                    } catch (IllegalStateException e){
+                        showDialogOnResume(getString(R.string.logcat_sent));
+                    }
                 }
             });
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (resumeDialog) {
+            if (dialog == null)
+                dialog = new AlertDialogFragment();
+
+            dialog.setMessage(message);
+            dialog.show(getSupportFragmentManager(), "AlertDialog");
+        }
+    }
+
+    private void showDialogOnResume(String message) {
+        resumeDialog = true;
+        this.message = message;
     }
 }
