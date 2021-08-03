@@ -1,16 +1,9 @@
 package org.calyxos.buttercup;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
 import org.calyxos.buttercup.dialog.AlertDialogFragment;
