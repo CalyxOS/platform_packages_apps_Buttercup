@@ -63,7 +63,7 @@ public class FeedbackViewModel extends ViewModel {
     private String scrubLogcat(String  logcat) {
         //Note: Escape metacharacters of any new regex patterns manually or with Pattern.quote() before adding it below
 
-        String gpsPattern = "[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)";
+        String gpsPattern = "[-+]?([1-8]?\\d(\\.\\d+)+|90(\\.0+)?), [-+]?(180(\\.0+)+|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)+)";
 
         //Modified Patterns.PHONE.pattern() so that it matches only numbers with leading '+' as phone numbers.
         // This exempts dates which we need
@@ -104,6 +104,7 @@ public class FeedbackViewModel extends ViewModel {
         //phoneInfoPattern = "(" + phoneInfoPattern + ")";
         //userInfoPattern = "(" + userInfoPattern + ")";
         //acctInfoPattern = "(" + acctInfoPattern + ")";
+        //gpsPattern = "(" + gpsPattern + ")";
 
         //String regex = String.join("|", emailPattern, phonePattern, webURLPattern, ipAddressPattern, phoneInfoPattern, acctInfoPattern,
         // gpsPattern);
@@ -118,6 +119,7 @@ public class FeedbackViewModel extends ViewModel {
         Pattern piPattern = Pattern.compile(phoneInfoPattern, Pattern.CASE_INSENSITIVE);
         Pattern uiPattern = Pattern.compile(userInfoPattern, Pattern.CASE_INSENSITIVE);
         Pattern aiPattern = Pattern.compile(acctInfoPattern, Pattern.CASE_INSENSITIVE);
+        Pattern gPattern = Pattern.compile(gpsPattern);
 
 
         logcat = emPattern1.matcher(logcat).replaceAll("***EMAIL***");
@@ -128,6 +130,7 @@ public class FeedbackViewModel extends ViewModel {
         logcat = piPattern.matcher(logcat).replaceAll("***PHONE-INFO***");
         logcat = uiPattern.matcher(logcat).replaceAll("***USER-INFO***");
         logcat = aiPattern.matcher(logcat).replaceAll("***ACCT-INFO***");
+        logcat = gPattern.matcher(logcat).replaceAll("***GPS CO-ORDINATES***");
 
         //matcher.usePattern(Pattern.compile("\\b(" + phonePattern + ")\\b"));
 
