@@ -82,13 +82,12 @@ public class MainActivity extends AppCompatActivity {
 
         binding.sendLogcatTxtBtn.setOnClickListener(v -> {
             //TODO enable user pick a date of the logcat (DatePicker)
-            dialog.setMessage(getString(R.string.sending_logcat));
-            dialog.show(getSupportFragmentManager(), "AlertDialog");
+            binding.progressBar2.setVisibility(View.VISIBLE);
 
             feedbackViewModel.submitLogcat(MainActivity.this, new RequestListener() {
                 @Override
                 public void onInternetError() {
-                    dialog.dismissAllowingStateLoss();
+                    binding.progressBar2.setVisibility(View.GONE);
 
                     try {
                         dialog.setMessage(getString(R.string.internet_unavailable));
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onValidationFailed(String validationErrorMessage) {
-                    dialog.dismissAllowingStateLoss();
+                    binding.progressBar2.setVisibility(View.GONE);
 
                     try {
                         dialog.setMessage(validationErrorMessage);
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onConnectionError(String errorMessage) {
-                    dialog.dismissAllowingStateLoss();
+                    binding.progressBar2.setVisibility(View.GONE);
 
                     try {
                         dialog.setMessage(errorMessage);
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess() {
-                    dialog.dismissAllowingStateLoss();
+                    binding.progressBar2.setVisibility(View.GONE);
 
                     try {
                         dialog.setMessage(getString(R.string.logcat_sent));
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onFail(String failMessage) {
-                    dialog.dismissAllowingStateLoss();
+                    binding.progressBar2.setVisibility(View.GONE);
 
                     try {
                         dialog.setMessage(failMessage);
