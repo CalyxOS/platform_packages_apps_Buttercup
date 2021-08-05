@@ -33,24 +33,36 @@ public class MainActivity extends AppCompatActivity {
             public void onInternetError() {
                 binding.progressBar.setVisibility(View.GONE);
 
-                dialog.setMessage(getString(R.string.internet_unavailable));
-                dialog.show(getSupportFragmentManager(), "AlertDialog");
+                try {
+                    dialog.setMessage(getString(R.string.internet_unavailable));
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                } catch (IllegalStateException e){
+                    showDialogOnResume(getString(R.string.internet_unavailable));
+                }
             }
 
             @Override
             public void onValidationFailed(String validationErrorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
 
-                dialog.setMessage(validationErrorMessage);
-                dialog.show(getSupportFragmentManager(), "AlertDialog");
+                try {
+                    dialog.setMessage(validationErrorMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                } catch (IllegalStateException e){
+                    showDialogOnResume(validationErrorMessage);
+                }
             }
 
             @Override
             public void onConnectionError(String errorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
 
-                dialog.setMessage(errorMessage);
-                dialog.show(getSupportFragmentManager(), "AlertDialog");
+                try {
+                    dialog.setMessage(errorMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                } catch (IllegalStateException e){
+                    showDialogOnResume(errorMessage);
+                }
             }
 
             @Override
@@ -59,16 +71,24 @@ public class MainActivity extends AppCompatActivity {
                 binding.subjectEdit.setText("");
                 binding.bodyEdit.setText("");
 
-                dialog.setMessage(getString(R.string.feedback_sent));
-                dialog.show(getSupportFragmentManager(), "AlertDialog");
+                try {
+                    dialog.setMessage(getString(R.string.feedback_sent));
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                } catch (IllegalStateException e){
+                    showDialogOnResume(getString(R.string.feedback_sent));
+                }
             }
 
             @Override
             public void onFail(String failMessage) {
                 binding.progressBar.setVisibility(View.GONE);
 
-                dialog.setMessage(failMessage);
-                dialog.show(getSupportFragmentManager(), "AlertDialog");
+                try {
+                    dialog.setMessage(failMessage);
+                    dialog.show(getSupportFragmentManager(), "AlertDialog");
+                } catch (IllegalStateException e){
+                    showDialogOnResume(failMessage);
+                }
             }
         };
 
