@@ -93,6 +93,8 @@ public class FeedbackViewModel extends ViewModel {
 
         String acctInfoPattern = "(Account \\{name=)[a-zA-Z0-9]*";
 
+        String imeiPattern = "(\\d){15}";
+
         //concatenate multiple patterns together to use at once on the input sequence //TODO improve this approach. Test.
 
         //String emailPattern = "(" + Patterns.EMAIL_ADDRESS.pattern() + ")";
@@ -105,9 +107,10 @@ public class FeedbackViewModel extends ViewModel {
         //userInfoPattern = "(" + userInfoPattern + ")";
         //acctInfoPattern = "(" + acctInfoPattern + ")";
         //gpsPattern = "(" + gpsPattern + ")";
+        //imeiPattern = "(" + imeiPattern + ")";
 
         //String regex = String.join("|", emailPattern, phonePattern, webURLPattern, ipAddressPattern, phoneInfoPattern, acctInfoPattern,
-        // gpsPattern);
+        // gpsPattern, imeiPattern);
 
         Pattern emPattern = Pattern.compile(Patterns.EMAIL_ADDRESS.pattern());
         Pattern emPattern1 = Pattern.compile(emailPattern1);
@@ -120,6 +123,7 @@ public class FeedbackViewModel extends ViewModel {
         Pattern uiPattern = Pattern.compile(userInfoPattern, Pattern.CASE_INSENSITIVE);
         Pattern aiPattern = Pattern.compile(acctInfoPattern, Pattern.CASE_INSENSITIVE);
         Pattern gPattern = Pattern.compile(gpsPattern);
+        Pattern imPattern = Pattern.compile(imeiPattern);
 
 
         logcat = emPattern1.matcher(logcat).replaceAll("***EMAIL***");
@@ -130,7 +134,8 @@ public class FeedbackViewModel extends ViewModel {
         logcat = piPattern.matcher(logcat).replaceAll("***PHONE-INFO***");
         logcat = uiPattern.matcher(logcat).replaceAll("***USER-INFO***");
         logcat = aiPattern.matcher(logcat).replaceAll("***ACCT-INFO***");
-        logcat = gPattern.matcher(logcat).replaceAll("***GPS CO-ORDINATES***");
+        logcat = gPattern.matcher(logcat).replaceAll("***GPS-CO-ORDINATES***");
+        logcat = imPattern.matcher(logcat).replaceAll("***IMEI-NUMBER***");
 
         //matcher.usePattern(Pattern.compile("\\b(" + phonePattern + ")\\b"));
 
