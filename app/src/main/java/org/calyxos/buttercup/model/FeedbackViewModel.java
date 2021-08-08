@@ -12,11 +12,8 @@ import org.calyxos.buttercup.network.Network;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.repo.Repository;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FeedbackViewModel extends ViewModel {
@@ -32,35 +29,38 @@ public class FeedbackViewModel extends ViewModel {
         if (Network.isConnected(context)) {
             if (!subject.isEmpty() && !body.isEmpty()) {
                 repo.submitFeedback(subject, body, requestListener);
-            } else requestListener.onValidationFailed(context.getString(R.string.subject_body_empty));
+            } else
+                requestListener.onValidationFailed(context.getString(R.string.subject_body_empty));
         } else requestListener.onInternetError();
     }
 
     public synchronized void submitLogcat(Context context, RequestListener requestListener) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //TODO show progress in a Notification
-                //get logcat
-                String logcat = repo.getLogcat();
-                Log.d(TAG, "Logcat {\n" + logcat + "}");
-                if (logcat.isEmpty())
-                    requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
-                else {
-                    //scrub logcat of personal information
-                    logcat = scrubLogcat(logcat);
-                    Log.d(TAG, "Scrubbed Logcat {" + logcat + "}");
-                    String fileName = writeLogcatToFile(context, logcat);
-                    String fileBase64 = getBase64(logcat);
-                    if (!logcat.isEmpty()) { //in case it returns empty for some reason
-                        repo.submitFeedbackWithAttachment("Logcat", "", fileName, fileBase64, requestListener);
-                    } else requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
+        if (Network.isConnected(context)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //get logcat
+                    String logcat = repo.getLogcat();
+                    Log.d(TAG, "Logcat {\n" + logcat + "}");
+                    if (logcat.isEmpty())
+                        requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
+                    else {
+                        //scrub logcat of personal information
+                        logcat = scrubLogcat(logcat);
+                        Log.d(TAG, "Scrubbed Logcat {" + logcat + "}");
+                        String fileName = writeLogcatToFile(context, logcat);
+                        String fileBase64 = getBase64(logcat);
+                        if (!logcat.isEmpty()) { //in case it returns empty for some reason
+                            repo.submitFeedbackWithAttachment("Logcat", "", fileName, fileBase64, requestListener);
+                        } else
+                            requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        } else requestListener.onInternetError();
     }
 
-    private String scrubLogcat(String  logcat) {
+    private String scrubLogcat(String logcat) {
         //Note: Escape metacharacters of any new regex patterns manually or with Pattern.quote() before adding it below
 
         String gpsPattern = "[-+]?([1-8]?\\d(\\.\\d+)+|90(\\.0+)?), [-+]?(180(\\.0+)+|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)+)";
