@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                         dialog.setMessage(failMessage);
                         dialog.show(getSupportFragmentManager(), "AlertDialog");
                     } catch (IllegalStateException e){
-                        showDialogOnResume(getString(R.string.logcat_sent));
+                        showDialogOnResume(failMessage);
                     }
                 }
             });
