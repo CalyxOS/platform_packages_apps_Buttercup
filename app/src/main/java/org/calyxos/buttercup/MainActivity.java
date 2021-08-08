@@ -9,6 +9,7 @@ import org.calyxos.buttercup.databinding.ActivityMainBinding;
 import org.calyxos.buttercup.dialog.AlertDialogFragment;
 import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.network.RequestListener;
+import org.calyxos.buttercup.notification.LogcatNotification;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,11 +104,14 @@ public class MainActivity extends AppCompatActivity {
         binding.sendLogcatTxtBtn.setOnClickListener(v -> {
             //TODO enable user pick a date of the logcat (DatePicker)
             binding.progressBar2.setVisibility(View.VISIBLE);
+            LogcatNotification logcatNotification = new LogcatNotification(this);
+            logcatNotification.showOrUpdateNotification(false, null);
 
             feedbackViewModel.submitLogcat(MainActivity.this, new RequestListener() {
                 @Override
                 public void onInternetError() {
                     binding.progressBar2.setVisibility(View.GONE);
+                    logcatNotification.showOrUpdateNotification(true, getString(R.string.internet_unavailable));
 
                     try {
                         dialog.setMessage(getString(R.string.internet_unavailable));
@@ -120,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onValidationFailed(String validationErrorMessage) {
                     binding.progressBar2.setVisibility(View.GONE);
+                    logcatNotification.showOrUpdateNotification(true, validationErrorMessage);
 
                     try {
                         dialog.setMessage(validationErrorMessage);
@@ -132,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onConnectionError(String errorMessage) {
                     binding.progressBar2.setVisibility(View.GONE);
+                    logcatNotification.showOrUpdateNotification(true, errorMessage);
 
                     try {
                         dialog.setMessage(errorMessage);
@@ -144,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess() {
                     binding.progressBar2.setVisibility(View.GONE);
+                    logcatNotification.showOrUpdateNotification(true, getString(R.string.logcat_sent));
 
                     try {
                         dialog.setMessage(getString(R.string.logcat_sent));
@@ -156,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFail(String failMessage) {
                     binding.progressBar2.setVisibility(View.GONE);
+                    logcatNotification.showOrUpdateNotification(true, failMessage);
 
                     try {
                         dialog.setMessage(failMessage);

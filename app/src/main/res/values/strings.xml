@@ -14,4 +14,8 @@
     <string name="sending_logcat">Sending logcat…</string>
     <string name="logcat_sent">Logcat sent.</string>
     <string name="logcat_not_retrieved">Error. Logcat wasn\'t retrieved.</string>
+    <string name="logcat_notification_title">Logcat Upload</string>
+    <string name="logcat_notification_desc">Logcat upload in progress</string>
+    <string name="logcat_notification_channel_name">Buttercup Feedback Logcat Channel</string>
+    <string name="logcat_notification_channel_description">Notification channel for logcat upload progress</string>
 </resources>
