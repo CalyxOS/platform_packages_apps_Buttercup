@@ -18,4 +18,8 @@
     <string name="logcat_notification_desc">Logcat upload in progress</string>
     <string name="logcat_notification_channel_name">Buttercup Feedback Logcat Channel</string>
     <string name="logcat_notification_channel_description">Notification channel for logcat upload progress</string>
+    <string name="feedback_notification_title">Feedback Upload</string>
+    <string name="feedback_notification_desc">Feedback upload in progress.</string>
+    <string name="feedback_notification_channel_name">Buttercup Feedback Feedback Channel</string>
+    <string name="feedback_notification_channel_description">Notification channel for feedback upload progress</string>
 </resources>

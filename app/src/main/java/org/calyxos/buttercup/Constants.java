@@ -14,5 +14,7 @@ public class Constants {
     public static final String MIME_TYPE_TEXT = "text/plain";
     public static final int LOGCAT_NOTIFICATION_ID = 5;
     public static final String NOTIFICATION_CHANNEL_ID = "org.calyxos.buttercup.logcat_channel";
+    public static final String NOTIFICATION_CHANNEL_ID_1 = "org.calyxos.buttercup.feedback_channel";
     public static final String NOTIFICATION_CHANNEL_GROUP_ID = "org.calyxos.buttercup.channel_group";
+    public static final int FEEDBACK_NOTIFICATION_ID = 6;
 }

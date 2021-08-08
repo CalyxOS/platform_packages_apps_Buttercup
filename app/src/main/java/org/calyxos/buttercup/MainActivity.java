@@ -9,6 +9,7 @@ import org.calyxos.buttercup.databinding.ActivityMainBinding;
 import org.calyxos.buttercup.dialog.AlertDialogFragment;
 import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.network.RequestListener;
+import org.calyxos.buttercup.notification.FeedbackNotification;
 import org.calyxos.buttercup.notification.LogcatNotification;
 
 public class MainActivity extends AppCompatActivity {
@@ -29,10 +30,12 @@ public class MainActivity extends AppCompatActivity {
 
         dialog = new AlertDialogFragment();
 
+        FeedbackNotification feedbackNotification = new FeedbackNotification(this);
         RequestListener requestListener = new RequestListener() {
             @Override
             public void onInternetError() {
                 binding.progressBar.setVisibility(View.GONE);
+                feedbackNotification.showOrUpdateNotification(true, getString(R.string.internet_unavailable));
 
                 try {
                     dialog.setMessage(getString(R.string.internet_unavailable));
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onValidationFailed(String validationErrorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
+                feedbackNotification.showOrUpdateNotification(true, validationErrorMessage);
 
                 try {
                     dialog.setMessage(validationErrorMessage);
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onConnectionError(String errorMessage) {
                 binding.progressBar.setVisibility(View.GONE);
+                feedbackNotification.showOrUpdateNotification(true, errorMessage);
 
                 try {
                     dialog.setMessage(errorMessage);
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.subjectEdit.setText("");
                 binding.bodyEdit.setText("");
+                feedbackNotification.showOrUpdateNotification(true, getString(R.string.feedback_sent));
 
                 try {
                     dialog.setMessage(getString(R.string.feedback_sent));
@@ -83,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFail(String failMessage) {
                 binding.progressBar.setVisibility(View.GONE);
+                feedbackNotification.showOrUpdateNotification(true, failMessage);
 
                 try {
                     dialog.setMessage(failMessage);
@@ -96,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         binding.submitBtn.setOnClickListener(v -> {
             //TODO hide keyboard
             binding.progressBar.setVisibility(View.VISIBLE);
+            feedbackNotification.showOrUpdateNotification(false, null);
             //TODO add tags, links and attachments features later
             feedbackViewModel.submitFeedback(MainActivity.this, binding.subjectEdit.getText().toString(),
                     binding.bodyEdit.getText().toString(), requestListener);
