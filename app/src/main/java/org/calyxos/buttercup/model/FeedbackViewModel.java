@@ -70,9 +70,9 @@ public class FeedbackViewModel extends ViewModel {
                         logcat = ScrubberUtils.scrubLogcat(logcat);
                         Log.d(TAG, "Scrubbed Logcat {" + logcat + "}");
                         String fileName = ScrubberUtils.writeLogcatToFile(context, logcat);
-                        //String fileBase64 = getBase64(logcat);
+                        String fileBase64 = FileUtils.getBase64(logcat.getBytes());
                         if (!logcat.isEmpty()) { //in case it returns empty for some reason
-                            //repo.submitFeedbackWithAttachment("Logcat", "", fileName, fileBase64, requestListener);
+                            repo.submitFeedbackWithAttachment("Logcat", "Logcat", fileName, fileBase64, requestListener);
                         } else
                             requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
                     }
