@@ -1,25 +1,44 @@
 package org.calyxos.buttercup.model;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import org.calyxos.buttercup.Constants;
 import org.calyxos.buttercup.R;
 import org.calyxos.buttercup.network.Network;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.repo.Repository;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class FeedbackViewModel extends ViewModel {
 
     private static final String TAG = FeedbackViewModel.class.getSimpleName();
     private final Repository repo;
+    private MutableLiveData<List<Image>> mutableLiveData;
+    private final List<Image> fileList = new ArrayList<>();
 
     public FeedbackViewModel() {
         repo = new Repository();
@@ -28,7 +47,7 @@ public class FeedbackViewModel extends ViewModel {
     public void submitFeedback(Context context, String subject, String body, RequestListener requestListener) {
         if (Network.isConnected(context)) {
             if (!subject.isEmpty() && !body.isEmpty()) {
-                repo.submitFeedback(subject, body, requestListener);
+                repo.submitFeedback(subject, body, fileList, requestListener);
             } else
                 requestListener.onValidationFailed(context.getString(R.string.subject_body_empty));
         } else requestListener.onInternetError();
@@ -49,15 +68,32 @@ public class FeedbackViewModel extends ViewModel {
                         logcat = scrubLogcat(logcat);
                         Log.d(TAG, "Scrubbed Logcat {" + logcat + "}");
                         String fileName = writeLogcatToFile(context, logcat);
-                        String fileBase64 = getBase64(logcat);
+                        //String fileBase64 = getBase64(logcat);
                         if (!logcat.isEmpty()) { //in case it returns empty for some reason
-                            repo.submitFeedbackWithAttachment("Logcat", "", fileName, fileBase64, requestListener);
+                            //repo.submitFeedbackWithAttachment("Logcat", "", fileName, fileBase64, requestListener);
                         } else
                             requestListener.onValidationFailed(context.getString(R.string.logcat_not_retrieved));
                     }
                 }
             }).start();
         } else requestListener.onInternetError();
+    }
+
+    public LiveData<List<Image>> getScreenshots() {
+        if(mutableLiveData == null){
+            mutableLiveData = new MutableLiveData<>();
+        }
+        return mutableLiveData;
+    }
+
+    public void removeFromFileList(Image image) {
+        fileList.remove(image);
+        mutableLiveData.setValue(fileList);
+    }
+
+    public void clearFileList() {
+        fileList.clear();
+        mutableLiveData.setValue(fileList);
     }
 
     private String scrubLogcat(String logcat) {
@@ -162,8 +198,148 @@ public class FeedbackViewModel extends ViewModel {
         return filename;
     }
 
-    private String getBase64(String logcat) {
-        return Base64.encodeToString(logcat.getBytes(), Base64.DEFAULT);
+    private String getBase64(byte[] data) {
+        return Base64.encodeToString(data, Base64.DEFAULT);
+    }
+
+    private Image getMetadata(Context context, Uri uri) throws IOException {
+        String name = "Screenshot";
+        String extension = "png";
+        String mimeType = "image/*";
+        int fileSize = 0;
+        Image image = new Image();
+
+        //check provider
+        if (uri.getScheme().equals("content")) {
+            String displayName = getContentSchemeDisplayName(context, uri);
+            name = displayName == null? name : displayName;
+
+        } else if (uri.getScheme().equals("file")) {
+            String displayName = getFileSchemeDisplayName(uri);
+            name = displayName == null? name : displayName;
+        }
+
+        extension = getFileExtension(context, uri);
+        mimeType = getMimeType(context, uri);
+        fileSize = getFileSize(context, uri);
+
+        byte[] dataBytes = getBytes(context, uri, extension);
+        image.setData(getBase64(dataBytes));
+        image.setFileName(name);
+        image.setMimeType(mimeType);
+        image.setFileSize(fileSize == 0? dataBytes.length : fileSize);
+
+        return image;
+    }
+
+    private String getContentSchemeDisplayName(Context context, Uri uri) {
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null,
+                null);
+
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+
+                //try and get file name
+                String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                /*if (displayName == null || displayName.isEmpty()) {
+                    String[] proj = { MediaStore.Images.Media.TITLE };
+                    Cursor cursor1 = context.getContentResolver().query(uri, proj, null, null, null);
+                    if (cursor1 != null && cursor1.getCount() != 0) {
+                        cursor1.moveToFirst();
+                        displayName = cursor1.getString(cursor1.getColumnIndexOrThrow(MediaStore.Images.Media.TITLE));
+                        if (displayName != null && !displayName.isEmpty())
+                            return displayName;
+                    }
+                    if (cursor1 != null) {
+                        cursor1.close();
+                    }
+                } else*/ return displayName;
+            }
+        } finally {
+            assert cursor != null;
+            cursor.close();
+        }
+
+        return null;
+    }
+
+    private String getFileSchemeDisplayName(Uri uri) {
+        return uri.getLastPathSegment();
+    }
+
+    private int getFileSize(Context context, Uri uri) {
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null,
+                null);
+        try {
+            //try and get file size
+            if (cursor != null && cursor.moveToFirst()) {
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                String size = null;
+                if (!cursor.isNull(sizeIndex)) {
+                    size = cursor.getString(sizeIndex);
+                    return Integer.parseInt(size);
+                } /*else {
+                //try this
+                String[] proj = {MediaStore.Images.Media.SIZE};
+                Cursor cursor2 = context.getContentResolver().query(uri, proj, null, null, null);
+                if (cursor2 != null && cursor2.getCount() != 0) {
+                    cursor2.moveToFirst();
+                    size = cursor2.getString(cursor2.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE));
+                    if (size != null && !size.isEmpty())
+                        return Integer.parseInt(size);
+                }
+                if (cursor2 != null) {
+                    cursor2.close();
+                }
+            }*/
+            }
+        } finally {
+            assert cursor != null;
+            cursor.close();
+        }
+        return 0;
+    }
+
+    private String getMimeType(Context context, Uri uri) {
+        return context.getContentResolver().getType(uri);
+    }
+
+    private String getFileExtension(Context context, Uri uri) {
+        //try and get the extension
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(context.getContentResolver().getType(uri));
+    }
+
+    private byte[] getBytes(Context context, Uri uri, String extension) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(extension.equalsIgnoreCase("jpg") ? Bitmap.CompressFormat.JPEG : Bitmap.CompressFormat.PNG,
+                100, stream);
+
+        image.recycle();
+        return stream.toByteArray();
+    }
+
+    public void processResult(Context context, int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constants.PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = null;
+            if (data != null) {
+                uri = data.getData();
+                try {
+                    fileList.add(getMetadata(context, uri));
+                    mutableLiveData.setValue(fileList);
+                } catch (IOException e) {
+                    Toast.makeText(context, context.getString(R.string.image_pick_failed), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.image_pick_failed), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Returned Intent is null for some reason.");
+            }
+        }
     }
 
 }

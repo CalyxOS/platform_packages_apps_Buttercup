@@ -1,10 +1,13 @@
 package org.calyxos.buttercup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.calyxos.buttercup.adapter.FileAdapter;
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
 import org.calyxos.buttercup.dialog.AlertDialogFragment;
 import org.calyxos.buttercup.model.FeedbackViewModel;
@@ -14,8 +17,10 @@ import org.calyxos.buttercup.notification.LogcatNotification;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private ActivityMainBinding binding;
     private FeedbackViewModel feedbackViewModel;
+    private FileAdapter adapter;
     private AlertDialogFragment dialog;
     private String message = "";
     private boolean resumeDialog = false;
@@ -28,7 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
         feedbackViewModel = new FeedbackViewModel();
 
+        adapter = new FileAdapter(feedbackViewModel);
+        binding.attachmentsList.setAdapter(adapter);
+
         dialog = new AlertDialogFragment();
+
+        feedbackViewModel.getScreenshots().observe(this, images -> {
+            adapter.addFileList(images);
+            adapter.notifyDataSetChanged();
+        });
 
         FeedbackNotification feedbackNotification = new FeedbackNotification(this);
         RequestListener requestListener = new RequestListener() {
@@ -76,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.subjectEdit.setText("");
                 binding.bodyEdit.setText("");
+                feedbackViewModel.clearFileList();
                 feedbackNotification.showOrUpdateNotification(true, getString(R.string.feedback_sent));
 
                 try {
@@ -182,6 +196,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
+
+        binding.addScreenshot.setOnClickListener(v -> {
+            openFile();
+        });
     }
 
     @Override
@@ -199,5 +217,19 @@ public class MainActivity extends AppCompatActivity {
     private void showDialogOnResume(String message) {
         resumeDialog = true;
         this.message = message;
+    }
+
+    private void openFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+
+        startActivityForResult(intent, Constants.PICK_IMAGE_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        feedbackViewModel.processResult(this, requestCode, resultCode, data);
     }
 }

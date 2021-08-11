@@ -17,4 +17,5 @@ public class Constants {
     public static final String NOTIFICATION_CHANNEL_ID_1 = "org.calyxos.buttercup.feedback_channel";
     public static final String NOTIFICATION_CHANNEL_GROUP_ID = "org.calyxos.buttercup.channel_group";
     public static final int FEEDBACK_NOTIFICATION_ID = 6;
+    public static final int PICK_IMAGE_REQUEST_CODE = 2;
 }
