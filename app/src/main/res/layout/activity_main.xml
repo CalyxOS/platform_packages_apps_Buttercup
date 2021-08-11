@@ -23,14 +23,17 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/instruction_text">
+        app:layout_constraintTop_toBottomOf="@+id/instruction_text"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
+            android:paddingBottom="100dp"
             android:orientation="vertical">
 
             <EditText
@@ -57,12 +60,41 @@
                 android:singleLine="false"
                 android:textSize="16sp" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/attachments_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/attachment_list_item">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <TextView
+                android:id="@+id/add_screenshot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/transparent_to_gray"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:padding="5dp"
+                android:text="@string/attach_screenshot"
+                android:textColor="@color/purple_700"
+                android:textSize="18sp"
+                app:drawableEndCompat="@drawable/ic_baseline_add_24" />
+
             <Button
                 android:id="@+id/submit_btn"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="61dp"
+                android:layout_marginTop="40dp"
                 android:layout_marginEnd="8dp"
                 android:fontFamily="@font/roboto_medium"
                 android:text="@string/submit"

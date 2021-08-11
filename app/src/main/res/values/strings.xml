@@ -22,4 +22,6 @@
     <string name="feedback_notification_desc">Feedback upload in progress.</string>
     <string name="feedback_notification_channel_name">Buttercup Feedback Feedback Channel</string>
     <string name="feedback_notification_channel_description">Notification channel for feedback upload progress</string>
+    <string name="attach_screenshot">Attach screenshot</string>
+    <string name="image_pick_failed">Image retrieval failed.</string>
 </resources>
