@@ -22,4 +22,10 @@
     <string name="feedback_notification_desc">Feedback upload in progress.</string>
     <string name="feedback_notification_channel_name">Buttercup Feedback Feedback Channel</string>
     <string name="feedback_notification_channel_description">Notification channel for feedback upload progress</string>
+    <string name="crash_report_notification_title">Crash Report Upload</string>
+    <string name="crash_report_notification_desc">Crash Report upload in progress</string>
+    <string name="crash_report_notification_channel_name">Buttercup Feedback CrashReport Channel</string>
+    <string name="crash_report_notification_channel_description">Notification channel for crash report upload progress</string>
+    <string name="crash_report_sent">Crash report sent.</string>
+    <string name="crash_report_not_retrieved">Crash report not retrieved.</string>
 </resources>

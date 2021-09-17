@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IncidentManager;
 
+import org.calyxos.buttercup.R;
 import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.network.RequestListener;
+import org.calyxos.buttercup.notification.CrashReportNotification;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,9 +22,12 @@ public class IncidentReportReceiver extends BroadcastReceiver {
     private List<Uri> mList;
     private FeedbackViewModel mFvm;
     private RequestListener mListener;
+    private CrashReportNotification crashReportNotification;
+    private Context context;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        this.context = context;
         if (intent.getAction().equals("android.intent.action.INCIDENT_REPORT_READY")) {
             mIncidentManager = new IncidentManager(context);
             mList = mIncidentManager.getIncidentReportList(".receiver.IncidentReportReceiver");
@@ -46,6 +51,8 @@ public class IncidentReportReceiver extends BroadcastReceiver {
             }
             mFvm = new FeedbackViewModel();
             mListener = getRequestListener();
+            crashReportNotification = new CrashReportNotification(context);
+            crashReportNotification.showOrUpdateNotification(false, null);
             mFvm.submitCrashReport(context, incidentContent, mListener);
         }
     }
@@ -54,28 +61,29 @@ public class IncidentReportReceiver extends BroadcastReceiver {
         return new RequestListener() {
             @Override
             public void onInternetError() {
-
+                crashReportNotification.showOrUpdateNotification(true, context.getString(R.string.internet_unavailable));
             }
 
             @Override
             public void onValidationFailed(String validationErrorMessage) {
-
+                crashReportNotification.showOrUpdateNotification(true, validationErrorMessage);
             }
 
             @Override
             public void onConnectionError(String errorMessage) {
-
+                crashReportNotification.showOrUpdateNotification(true, errorMessage);
             }
 
             @Override
             public void onSuccess() {
+                crashReportNotification.showOrUpdateNotification(true, context.getString(R.string.crash_report_sent));
                 //delete incident reports after upload as suggested in documentation??
                 //for (Uri uri : mList) mIncidentManager.deleteIncidentReports(uri);
             }
 
             @Override
             public void onFail(String failMessage) {
-
+                crashReportNotification.showOrUpdateNotification(true, failMessage);
             }
         };
     }

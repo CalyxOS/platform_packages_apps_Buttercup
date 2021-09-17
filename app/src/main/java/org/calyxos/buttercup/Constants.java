@@ -15,6 +15,8 @@ public class Constants {
     public static final int LOGCAT_NOTIFICATION_ID = 5;
     public static final String NOTIFICATION_CHANNEL_ID = "org.calyxos.buttercup.logcat_channel";
     public static final String NOTIFICATION_CHANNEL_ID_1 = "org.calyxos.buttercup.feedback_channel";
+    public static final String NOTIFICATION_CHANNEL_ID_2 = "org.calyxos.buttercup.crash_report_channel";
     public static final String NOTIFICATION_CHANNEL_GROUP_ID = "org.calyxos.buttercup.channel_group";
     public static final int FEEDBACK_NOTIFICATION_ID = 6;
+    public static final int CRASH_REPORT_NOTIFICATION_ID = 7;
 }

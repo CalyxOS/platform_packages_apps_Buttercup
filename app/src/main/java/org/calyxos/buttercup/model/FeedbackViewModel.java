@@ -77,12 +77,15 @@ public class FeedbackViewModel extends ViewModel {
                         String fileBase64 = FileUtils.getBase64(scrubbedReport.getBytes());
                         if (!scrubbedReport.isEmpty()) { //in case it returns empty for some reason
                             repo.submitFeedbackWithAttachment("Crash Report", "Crash Report", fileName, fileBase64, requestListener);
-                        } else
+                        } else {
                             Log.d(TAG, "CrashReport is empty after scrub.");
-                    }
+                            requestListener.onValidationFailed(context.getString(R.string.crash_report_not_retrieved));
+                        }
+                    } else requestListener.onValidationFailed(context.getString(R.string.crash_report_not_retrieved));
                 }
             }).start();
         } else {
+            requestListener.onInternetError();
             Toast.makeText(context, context.getString(R.string.internet_unavailable), Toast.LENGTH_LONG).show();
             //TODO save it somewhere to upload later when network is back up
         }
