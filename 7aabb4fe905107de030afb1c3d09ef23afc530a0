@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70741553_dff22518",
+        "filename": "app/src/main/java/org/calyxos/buttercup/receiver/IncidentReportReceiver.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2021-09-17T11:10:27Z",
+      "side": 1,
+      "message": "I am not sure of the class name to be supplied here. Full class name with package id or just simple class name. Not much documentation on that. Implementation in getIncidentReportList shows it retrieves package name. Perhaps to concatenate with the simple class name?",
+      "revId": "7aabb4fe905107de030afb1c3d09ef23afc530a0",
+      "serverId": "35266860-6252-469c-a67d-185064479fc0"
+    }
+  ]
+}
