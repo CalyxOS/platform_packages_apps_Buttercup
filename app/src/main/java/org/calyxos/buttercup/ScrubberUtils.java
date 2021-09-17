@@ -12,7 +12,7 @@ public class ScrubberUtils {
 
     private static final String TAG = ScrubberUtils.class.getSimpleName();
 
-    public static String scrubLogcat(String logcat) {
+    public static String scrub(String logcat) {
         //Note: Escape metacharacters of any new regex patterns manually or with Pattern.quote() before adding it below
 
         String gpsPattern = "[-+]?([1-8]?\\d(\\.\\d+)+|90(\\.0+)?), [-+]?(180(\\.0+)+|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)+)";
@@ -111,6 +111,18 @@ public class ScrubberUtils {
         }
 
         Log.e(TAG, "Logcat File: " + context.getFilesDir() + "/" + filename);
+        return filename;
+    }
+
+    public static String writeReportToFile(Context context, String crashReport) {
+        String filename = "crash_report.txt";
+        try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
+            fos.write(crashReport.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Log.e(TAG, "CrashReport File: " + context.getFilesDir() + "/" + filename);
         return filename;
     }
 }
