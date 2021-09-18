@@ -119,7 +119,7 @@ public class Repository {
         });
     }
 
-    public void submitFeedbackWithAttachments(Context context, String subject, String body, List<String> reports) {
+    public void submitFeedbackWithAttachments(Context context, String subject, String body, List<String> reports, RequestListener listener) {
         TicketCompat ticketCompat = new TicketCompat();
         ticketCompat.setCustomer(Constants.ZAMMAD_CUSTOMER);
         ticketCompat.setGroup("Users");
@@ -139,22 +139,29 @@ public class Repository {
         webServices.createTicket(getHeaderMap(), ticketCompat).enqueue(new Callback<Ticket>() {
             @Override
             public void onResponse(Call<Ticket> call, Response<Ticket> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    Log.d(TAG, response.body().toString());
-                } else {
-                    assert response.errorBody() != null;
-                    try {
-                        Log.e(TAG, "Error Body: " + response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                if (listener != null) {
+                    if (response.isSuccessful()) {
+                        listener.onSuccess();
+                        assert response.body() != null;
+                        Log.d(TAG, response.body().toString());
+                    } else {
+                        listener.onFail(response.message());
+                        assert response.errorBody() != null;
+                        try {
+                            Log.e(TAG, "Error Body: " + response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Log.e(TAG, "Message: " + response.message());
                     }
-                    Log.e(TAG, "Message: " + response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<Ticket> call, Throwable t) {
+                if (listener != null)
+                    listener.onConnectionError(t.getMessage());
+
                 Log.e(TAG, "Connection Error: " + t.getMessage());
                 t.printStackTrace();
             }

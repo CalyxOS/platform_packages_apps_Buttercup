@@ -98,7 +98,7 @@ public class FeedbackViewModel extends ViewModel {
         }
     }
 
-    public synchronized void submitCrashReports(Context context, final List<String> reports) {
+    public synchronized void submitCrashReports(Context context, final List<String> reports, RequestListener listener) {
         if (Network.isConnected(context)) {
             new Thread(new Runnable() {
                 @Override
@@ -116,10 +116,11 @@ public class FeedbackViewModel extends ViewModel {
                             scrubbedReportsList.add(scrubbedReport);
                         }
                     });
-                    repo.submitFeedbackWithAttachments(context, "Crash Reports", "Crash Reports", scrubbedReportsList);
+                    repo.submitFeedbackWithAttachments(context, "Crash Reports", "Crash Reports", scrubbedReportsList, listener);
                 }
             }).start();
         } else {
+            listener.onInternetError();
             //save and upload later
             FileUtils.putInPreferenceFile(context, reports);
             Utils.setWorkRequest(context);
