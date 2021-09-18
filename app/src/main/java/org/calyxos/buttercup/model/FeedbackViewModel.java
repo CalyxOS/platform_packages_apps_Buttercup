@@ -9,9 +9,13 @@ import androidx.lifecycle.ViewModel;
 import org.calyxos.buttercup.FileUtils;
 import org.calyxos.buttercup.R;
 import org.calyxos.buttercup.ScrubberUtils;
+import org.calyxos.buttercup.Utils;
 import org.calyxos.buttercup.network.Network;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.repo.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedbackViewModel extends ViewModel {
 
@@ -87,7 +91,38 @@ public class FeedbackViewModel extends ViewModel {
         } else {
             requestListener.onInternetError();
             Toast.makeText(context, context.getString(R.string.internet_unavailable), Toast.LENGTH_LONG).show();
-            //TODO save it somewhere to upload later when network is back up
+
+            //save and upload later
+            FileUtils.putInPreferenceFile(context).putString(Utils.getCurrentDateTime(), report).apply();
+            Utils.setWorkRequest(context);
+        }
+    }
+
+    public synchronized void submitCrashReports(Context context, final List<String> reports) {
+        if (Network.isConnected(context)) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    List<String> scrubbedReportsList = new ArrayList<>();
+                    reports.forEach(s -> {
+                        //get crash report
+                        //Log.d(TAG, "CrashReport {\n" + s + "}");
+                        if (!s.isEmpty()) {
+
+                            //scrub crash report of personal information
+                            String scrubbedReport = ScrubberUtils.scrub(s);
+
+                            //Log.d(TAG, "Scrubbed CrashReport {" + scrubbedReport + "}");
+                            scrubbedReportsList.add(scrubbedReport);
+                        }
+                    });
+                    repo.submitFeedbackWithAttachments(context, "Crash Reports", "Crash Reports", scrubbedReportsList);
+                }
+            }).start();
+        } else {
+            //save and upload later
+            FileUtils.putInPreferenceFile(context, reports);
+            Utils.setWorkRequest(context);
         }
     }
 

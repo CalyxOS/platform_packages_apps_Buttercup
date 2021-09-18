@@ -1,6 +1,7 @@
 package org.calyxos.buttercup;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,8 +14,27 @@ import android.webkit.MimeTypeMap;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class FileUtils {
+
+    public static SharedPreferences.Editor putInPreferenceFile(Context context) {
+        return context.getSharedPreferences(Constants.CRASH_REPORT_PREF, Context.MODE_PRIVATE).edit();
+    }
+
+    public static void putInPreferenceFile(Context context, List<String> reports) {
+       SharedPreferences.Editor editor = context.getSharedPreferences(Constants.CRASH_REPORT_PREF, Context.MODE_PRIVATE)
+               .edit();
+
+       reports.forEach(s -> {
+           editor.putString(Utils.getCurrentDateTime(), s).apply();
+       });
+    }
+
+    public static Map<String, ?> getPreferenceFileContents(Context context) {
+        return context.getSharedPreferences(Constants.CRASH_REPORT_PREF, Context.MODE_PRIVATE).getAll();
+    }
 
     public static String getBase64(byte[] data) {
         return Base64.encodeToString(data, Base64.DEFAULT);

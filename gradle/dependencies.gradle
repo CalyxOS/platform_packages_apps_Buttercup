@@ -33,6 +33,10 @@ dependencies {
         version { strictly '2.0.0-beta7' }
     }
 
+    implementation('androidx.work:work-runtime') {
+        version { strictly '2.7.0-beta01' }
+    }
+
     implementation('com.google.android.material:material') {
         // https://android.googlesource.com/platform/prebuilts/sdk/+/refs/tags/android-11.0.0_r3/current/extras/material-design-x/Android.bp#6
         version { strictly '1.1.0-alpha05' }
