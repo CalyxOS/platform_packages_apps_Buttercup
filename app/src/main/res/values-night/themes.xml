@@ -14,4 +14,8 @@
         <!-- Customize your theme here. -->
         <item name="title">@string/feedback</item>
     </style>
+
+    <style name="Theme.Buttercup.ImagePreview" parent="Theme.Buttercup">
+        <item name="title">@string/screenshot_preview</item>
+    </style>
 </resources>
