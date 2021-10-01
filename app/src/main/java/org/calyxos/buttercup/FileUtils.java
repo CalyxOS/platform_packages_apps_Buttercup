@@ -15,6 +15,10 @@ import org.calyxos.buttercup.model.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class FileUtils {
 
@@ -22,7 +26,7 @@ public class FileUtils {
         return Base64.encodeToString(data, Base64.DEFAULT);
     }
 
-    public static Image getMetadata(Context context, Uri uri) throws IOException {
+    public static Image getImage(Context context, Uri uri) throws IOException {
         String name = "Screenshot";
         String extension = "png";
         String mimeType = "image/*";
@@ -45,9 +49,34 @@ public class FileUtils {
 
         byte[] dataBytes = getBytes(context, uri, extension);
         image.setData(getBase64(dataBytes));
+        image.setDataBytes(dataBytes);
         image.setFileName(name);
         image.setMimeType(mimeType);
         image.setFileSize(fileSize == 0? dataBytes.length : fileSize);
+
+        return image;
+    }
+
+    public static Image getImage(Context context, byte[] bytes) {
+        String name = "Screenshot";
+        String extension = "jpg";
+        String mimeType = "image/*";
+        int fileSize = 0;
+        Image image = new Image();
+
+        Date c = Calendar.getInstance().getTime();
+
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy_KK:mm:ss:SSS", Locale.getDefault());
+        name = df.format(c);
+        name = name + "." + extension;
+
+        fileSize = bytes.length;
+
+        image.setData(getBase64(bytes));
+        image.setDataBytes(bytes);
+        image.setFileName(name);
+        image.setMimeType(mimeType);
+        image.setFileSize(fileSize);
 
         return image;
     }
@@ -141,5 +170,17 @@ public class FileUtils {
 
         image.recycle();
         return stream.toByteArray();
+    }
+
+    public static byte[] getBytes(Bitmap image) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
+        image.recycle();
+        return stream.toByteArray();
+    }
+
+    public static Bitmap getBitmap(byte[] bytes) {
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 }

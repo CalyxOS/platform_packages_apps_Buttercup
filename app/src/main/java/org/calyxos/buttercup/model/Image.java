@@ -8,15 +8,17 @@ public class Image {
     private String mimeType;
     private int fileSize;
     private String data;
+    private byte[] dataBytes;
 
     public Image() {
     }
 
-    public Image(String fileName, String mimeType, int fileSize, String data) {
+    public Image(String fileName, String mimeType, int fileSize, String data, byte[] dataBytes) {
         this.fileName = fileName;
         this.mimeType = mimeType;
         this.fileSize = fileSize;
         this.data = data;
+        this.dataBytes = dataBytes;
     }
 
     public String getFileName() {
@@ -51,13 +53,22 @@ public class Image {
         this.data = data;
     }
 
+    public byte[] getDataBytes() {
+        return dataBytes;
+    }
+
+    public void setDataBytes(byte[] dataBytes) {
+        this.dataBytes = dataBytes;
+    }
+
     @Override
     public String toString() {
         return "Image{" +
                 "fileName='" + fileName + '\'' +
                 ", mimeType='" + mimeType + '\'' +
                 ", fileSize=" + fileSize +
-                ", data=" + data +
+                ", data='" + data + '\'' +
+                ", dataBytes=" + Arrays.toString(dataBytes) +
                 '}';
     }
 }

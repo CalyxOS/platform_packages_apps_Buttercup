@@ -1,11 +1,16 @@
 package org.calyxos.buttercup.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.calyxos.buttercup.Constants;
+import org.calyxos.buttercup.FileUtils;
+import org.calyxos.buttercup.ImagePreviewActivity;
 import org.calyxos.buttercup.databinding.AttachmentListItemBinding;
 import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.model.Image;
@@ -15,10 +20,12 @@ import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
 
+    private final Context context;
     private final FeedbackViewModel feedbackViewModel;
     private List<Image> fileList = new ArrayList<>();
 
-    public FileAdapter(FeedbackViewModel feedbackViewModel) {
+    public FileAdapter(Context context,  FeedbackViewModel feedbackViewModel) {
+        this.context = context;
         this.feedbackViewModel = feedbackViewModel;
     }
 
@@ -38,9 +45,15 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Image image = fileList.get(position);
         holder.binding.fileName.setText(image.getFileName());
+        holder.binding.image.setImageBitmap(FileUtils.getBitmap(image.getDataBytes()));
 
-        holder.binding.removeAttachment.setOnClickListener( v -> {
-            feedbackViewModel.removeFromFileList(fileList.get(holder.getAdapterPosition()));
+        holder.binding.removeAttachment.setOnClickListener( v ->
+                feedbackViewModel.removeFromFileList(fileList.get(holder.getAdapterPosition())));
+
+        holder.binding.image.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ImagePreviewActivity.class);
+            intent.putExtra(Constants.SCREENSHOT_IMAGE, image.getDataBytes());
+            context.startActivity(intent);
         });
     }
 

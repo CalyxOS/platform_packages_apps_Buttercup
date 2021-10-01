@@ -3,16 +3,8 @@ package org.calyxos.buttercup.model;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.provider.OpenableColumns;
-import android.util.Base64;
 import android.util.Log;
-import android.util.Patterns;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -27,13 +19,9 @@ import org.calyxos.buttercup.network.Network;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.repo.Repository;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileDescriptor;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class FeedbackViewModel extends ViewModel {
 
@@ -98,13 +86,25 @@ public class FeedbackViewModel extends ViewModel {
         mutableLiveData.setValue(fileList);
     }
 
+    public void processScreenshot(Context context, Intent intent) {
+        if (intent != null) {
+            byte[] bytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
+            if (bytes != null) {
+                if (bytes.length != 0) {
+                    fileList.add(FileUtils.getImage(context, bytes));
+                    mutableLiveData.setValue(fileList);
+                }
+            }
+        }
+    }
+
     public void processResult(Context context, int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = null;
             if (data != null) {
                 uri = data.getData();
                 try {
-                    fileList.add(FileUtils.getMetadata(context, uri));
+                    fileList.add(FileUtils.getImage(context, uri));
                     mutableLiveData.setValue(fileList);
                 } catch (IOException e) {
                     Toast.makeText(context, context.getString(R.string.image_pick_failed), Toast.LENGTH_LONG).show();

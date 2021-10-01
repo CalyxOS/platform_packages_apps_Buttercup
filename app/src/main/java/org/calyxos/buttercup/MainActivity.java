@@ -1,8 +1,16 @@
 package org.calyxos.buttercup;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +22,7 @@ import org.calyxos.buttercup.model.FeedbackViewModel;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.notification.FeedbackNotification;
 import org.calyxos.buttercup.notification.LogcatNotification;
+import org.calyxos.buttercup.service.PopupWindowService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private String message = "";
     private boolean resumeDialog = false;
 
+    private ServiceConnection serviceConnection;
+    private PopupWindowService popupService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
         feedbackViewModel = new FeedbackViewModel();
 
-        adapter = new FileAdapter(feedbackViewModel);
+        adapter = new FileAdapter(this, feedbackViewModel);
         binding.attachmentsList.setAdapter(adapter);
 
         dialog = new AlertDialogFragment();
@@ -197,9 +209,88 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
-        binding.addScreenshot.setOnClickListener(v -> {
-            openFile();
+        binding.takeScreenshotSwitch.setOnClickListener(v -> {
+            if (binding.takeScreenshotSwitch.isChecked()) {
+                // Is Draw over other apps permission granted?
+                if (!Settings.canDrawOverlays(this)) {
+                    binding.takeScreenshotSwitch.setChecked(false);
+                    //TODO add an explanation dialog here
+                    getDrawOverlaysPermission();
+                } else {
+                    getScreenCapturePermission();
+                }
+            } else stopPopupService();
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        //Retrieve screenshot image sent
+        feedbackViewModel.processScreenshot(this, intent);
+    }
+
+    private void startPopupService(int resultCode, Intent data) {
+        Log.d(TAG, "Service about to be started");
+        Intent serviceIntent = new Intent(MainActivity.this, PopupWindowService.class);
+        serviceIntent.putExtra(Constants.RESULT_CODE, resultCode);
+        serviceIntent.putExtra(Constants.PERMISSION_DATA, data);
+        //Service connection to bind the service to this context because of startForegroundService issues
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                Log.d(TAG, "Service connected");
+                PopupWindowService.ServiceBinder binder = (PopupWindowService.ServiceBinder) service;
+                popupService = binder.getService();
+                startForegroundService(serviceIntent);
+                popupService.startForeground(Constants.SCREENSHOT_NOTIFICATION_ID, popupService.getNotification());
+            }
+
+            @Override
+            public void onBindingDied(ComponentName name) {
+                Log.w(TAG, "Binding has died.");
+            }
+
+            @Override
+            public void onNullBinding(ComponentName name) {
+                Log.w(TAG, "Binding was null.");
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                Log.w(TAG, "Service is disconnected..");
+            }
+        };
+
+        try {
+            Log.d(TAG, "Service bound");
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        } catch (RuntimeException ignored) {
+            Log.d(TAG, "Runtime exception");
+            //Use the normal way and accept it will fail sometimes
+            startForegroundService(serviceIntent);
+        }
+    }
+
+    private void stopPopupService() {
+        if (serviceConnection != null)
+            unbindService(serviceConnection);
+        if (popupService != null)
+            popupService.stopForeground(true);
+        stopService(new Intent(this, PopupWindowService.class));
+    }
+
+    private void getDrawOverlaysPermission() {
+        // send user to the device settings
+        Intent myIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+        startActivity(myIntent);
+    }
+
+    private void getScreenCapturePermission() {
+        MediaProjectionManager projectionManager =
+                (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(projectionManager.createScreenCaptureIntent(), Constants.SCREEN_CAPTURE_PERMISSION_CODE);
     }
 
     @Override
@@ -230,6 +321,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        feedbackViewModel.processResult(this, requestCode, resultCode, data);
+        //feedbackViewModel.processResult(this, requestCode, resultCode, data);
+        if (requestCode == Constants.SCREEN_CAPTURE_PERMISSION_CODE) {
+            if (resultCode == RESULT_OK) {
+                // start a service
+                startPopupService(resultCode, data);
+            } else {
+                binding.takeScreenshotSwitch.setChecked(false);
+                Log.d(TAG, "User rejected permission for screen capture.");
+                Toast.makeText(this, getString(R.string.screen_capture_rejected), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }
