@@ -37,7 +37,7 @@
         <activity android:name=".ImagePreviewActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.Buttercup"
+            android:theme="@style/Theme.Buttercup.ImagePreview"
             android:label="@string/screenshot_preview"
             android:exported="false">
             <meta-data
