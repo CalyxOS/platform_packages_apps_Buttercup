@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +46,7 @@ public class Repository {
         ticketCompat.setTitle(subject);
         List<ArticleAttachmentCompat> attachs = new ArrayList<>();
         for (Image image: fileList) {
-            attachs.add(new ArticleAttachmentCompat(image.getFileName(), image.getData(), image.getMimeType()));
+            attachs.add(new ArticleAttachmentCompat(image.getFileName(), image.getBase64Data(), image.getMimeType()));
         }
         ticketCompat.setArticle(new TicketArticleCompat(subject, body, Constants.ARTICLE_TYPE, false, attachs.isEmpty()? null : attachs));
         webServices.createTicket(getHeaderMap(), ticketCompat).enqueue(new Callback<Ticket>() {

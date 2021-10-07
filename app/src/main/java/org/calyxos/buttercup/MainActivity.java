@@ -7,11 +7,13 @@ import android.content.ServiceConnection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,10 +21,14 @@ import org.calyxos.buttercup.adapter.FileAdapter;
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
 import org.calyxos.buttercup.dialog.AlertDialogFragment;
 import org.calyxos.buttercup.model.FeedbackViewModel;
+import org.calyxos.buttercup.model.Image;
 import org.calyxos.buttercup.network.RequestListener;
 import org.calyxos.buttercup.notification.FeedbackNotification;
 import org.calyxos.buttercup.notification.LogcatNotification;
 import org.calyxos.buttercup.service.PopupWindowService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ServiceConnection serviceConnection;
     private PopupWindowService popupService;
+
+    public static final String SUBJECT = "subject";
+    public static final String BODY = "body";
+    public static final String SCREENSHOTS = "screenshots";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,6 +231,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else stopPopupService();
         });
+
+        if (savedInstanceState != null) {
+            String subject = savedInstanceState.getString(SUBJECT);
+            String body = savedInstanceState.getString(BODY);
+            binding.subjectEdit.setText(subject != null? subject : "");
+            binding.bodyEdit.setText(body != null? body : "");
+
+            //For security reasons we shouldn't write image to file hence saving and restoring when screen rotates is not
+            //supported. We might just set screen orientation to landscape permanently
+            //feedbackViewModel.restoreScreenshots(this, savedInstanceState);
+
+            savedInstanceState.clear();
+        }
     }
 
     @Override
@@ -232,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startPopupService(int resultCode, Intent data) {
-        Log.d(TAG, "Service about to be started");
         Intent serviceIntent = new Intent(MainActivity.this, PopupWindowService.class);
         serviceIntent.putExtra(Constants.RESULT_CODE, resultCode);
         serviceIntent.putExtra(Constants.PERMISSION_DATA, data);
@@ -264,10 +286,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
         try {
-            Log.d(TAG, "Service bound");
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-        } catch (RuntimeException ignored) {
-            Log.d(TAG, "Runtime exception");
+        } catch (RuntimeException re) {
+            re.printStackTrace();
             //Use the normal way and accept it will fail sometimes
             startForegroundService(serviceIntent);
         }
@@ -332,5 +353,16 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, getString(R.string.screen_capture_rejected), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(SUBJECT, binding.subjectEdit.getText().toString());
+        outState.putString(BODY, binding.bodyEdit.getText().toString());
+
+        //For security reasons we shouldn't write image to file hence saving and restoring when screen rotates is not
+        //supported. So we'll just set screen orientation to landscape permanently
+        //outState = feedbackViewModel.saveScreenshots(this, outState);
+        super.onSaveInstanceState(outState);
     }
 }

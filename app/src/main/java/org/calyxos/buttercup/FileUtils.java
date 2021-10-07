@@ -8,12 +8,16 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import org.calyxos.buttercup.model.Image;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,6 +25,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class FileUtils {
+
+    private static final String TAG = FileUtils.class.getSimpleName();
 
     public static String getBase64(byte[] data) {
         return Base64.encodeToString(data, Base64.DEFAULT);
@@ -48,7 +54,7 @@ public class FileUtils {
         fileSize = getFileSize(context, uri);
 
         byte[] dataBytes = getBytes(context, uri, extension);
-        image.setData(getBase64(dataBytes));
+        image.setBase64Data(getBase64(dataBytes));
         image.setDataBytes(dataBytes);
         image.setFileName(name);
         image.setMimeType(mimeType);
@@ -72,7 +78,7 @@ public class FileUtils {
 
         fileSize = bytes.length;
 
-        image.setData(getBase64(bytes));
+        image.setBase64Data(getBase64(bytes));
         image.setDataBytes(bytes);
         image.setFileName(name);
         image.setMimeType(mimeType);
@@ -181,6 +187,38 @@ public class FileUtils {
     }
 
     public static Bitmap getBitmap(byte[] bytes) {
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        if (bytes != null)
+            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        else return null;
+    }
+
+    public static String saveImageToFile(Context context, Image image) {
+        try (FileOutputStream fos = context.openFileOutput(image.getFileName(), Context.MODE_PRIVATE)) {
+            if (!new File(context.getFilesDir() + "/" + image.getFileName()).exists()) {
+                fos.write(image.getDataBytes());
+                fos.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        Log.e(TAG, "Image File: " + context.getFilesDir() + "/" + image.getFileName());
+        return context.getFilesDir() + "/" + image.getFileName();
+    }
+
+    public static byte[] restoreImageFromFile(Context context, Image image) {
+        byte[] bytes = new byte[image.getFileSize()];
+        try (FileInputStream fis = context.openFileInput(context.getFilesDir() + "/" + image.getFileName())) {
+            int i = fis.read(bytes);
+            fis.close();
+            //delete file
+            boolean b = new File(context.getFilesDir() + "/" + image.getFileName()).delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return bytes;
     }
 }

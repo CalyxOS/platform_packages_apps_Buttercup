@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +15,7 @@ import androidx.lifecycle.ViewModel;
 
 import org.calyxos.buttercup.Constants;
 import org.calyxos.buttercup.FileUtils;
+import org.calyxos.buttercup.MainActivity;
 import org.calyxos.buttercup.R;
 import org.calyxos.buttercup.ScrubberUtils;
 import org.calyxos.buttercup.network.Network;
@@ -91,11 +94,60 @@ public class FeedbackViewModel extends ViewModel {
             byte[] bytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
             if (bytes != null) {
                 if (bytes.length != 0) {
+                    //NOTE: if not for security issues with writing an image file to be uploaded to calyx server, we could
+                    //write to it here after screenshot is taken. This would be to save it for screen orientation change
                     fileList.add(FileUtils.getImage(context, bytes));
                     mutableLiveData.setValue(fileList);
                 }
             }
         }
+    }
+
+    public Bundle saveScreenshots(Context context, Bundle outState) {
+        List<Image> images = getScreenshots().getValue();
+        if (images != null) {
+            //This is to avoid the java.lang.RuntimeException: android.os.TransactionTooLargeException: data parcel
+            // issues with Android
+            //TODO run in diff thread
+            images.forEach(image -> {
+                if (!isImageSaved(outState, image)) {
+                    String url = FileUtils.saveImageToFile(context, image);
+                    if (url != null)
+                        image.setFileURL(url);
+                    image.setDataBytes(null);
+                    image.setBase64Data("");
+                }
+            });
+            ArrayList<Parcelable> list = new ArrayList<>(images);
+            outState.putParcelableArrayList(MainActivity.SCREENSHOTS, list);
+        }
+        return outState;
+    }
+
+    public void restoreScreenshots(Context context, Bundle saved) {
+        if (saved != null) {
+            ArrayList<Parcelable> images = saved.getParcelableArrayList(MainActivity.SCREENSHOTS);
+            if (images != null) {
+                //TODO run in diff thread
+                images.forEach(parcelable -> {
+                    Image image = (Image) parcelable;
+                    byte[] bytes = FileUtils.restoreImageFromFile(context, image);
+                    if (bytes != null) {
+                        image.setDataBytes(bytes);
+                        image.setBase64Data(FileUtils.getBase64(bytes));
+                        fileList.add(image);
+                    }
+                });
+                mutableLiveData.setValue(fileList);
+            }
+        }
+    }
+
+    private boolean isImageSaved(Bundle outState, Image image) {
+        ArrayList<Parcelable> savedImages = outState.getParcelableArrayList(MainActivity.SCREENSHOTS);
+        if (savedImages != null) {
+            return savedImages.stream().anyMatch(parcelable -> ((Image) parcelable).getFileName().equals(image.getFileName()));
+        } else return false;
     }
 
     public void processResult(Context context, int requestCode, int resultCode, Intent data) {
