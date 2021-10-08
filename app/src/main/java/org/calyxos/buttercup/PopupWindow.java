@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import static android.content.Context.WINDOW_SERVICE;
@@ -27,7 +29,8 @@ public class PopupWindow {
     private final View mView;
     private final WindowManager.LayoutParams mParams;
     private final WindowManager mWindowManager;
-    private final RelativeLayout snapBtn;
+    private final CardView snapBtn;
+    private final ProgressBar progressBar;
     private Intent capturePermIntent;
     private int resultCode;
 
@@ -49,7 +52,8 @@ public class PopupWindow {
 
         LayoutInflater layoutInflater = LayoutInflater.from(context);//(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mView = layoutInflater.inflate(R.layout.screenshot_popup_window, null);
-        snapBtn = mView.findViewById(R.id.popupMain);
+        snapBtn = mView.findViewById(R.id.popupCardView);
+        progressBar = mView.findViewById(R.id.progressBar);
         // position of window within screen
         mParams.gravity = Gravity.CENTER | Gravity.END;
         // x and y position values
@@ -64,6 +68,7 @@ public class PopupWindow {
         snapBtn.setOnClickListener(view -> {
             //Hide button and take screenshot so it doesn't show in the image
             snapBtn.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
             //TODO give user the option of choosing resolution
             Intent intent = new Intent(context, ScreenshotManager.class);
             intent.putExtra(Constants.PERMISSION_DATA, capturePermIntent);
@@ -92,6 +97,7 @@ public class PopupWindow {
 
                         case ACTION_CAPTURE_FAILED: {
 
+                            progressBar.setVisibility(View.GONE);
                             snapBtn.setVisibility(View.VISIBLE);
                             break;
                         }

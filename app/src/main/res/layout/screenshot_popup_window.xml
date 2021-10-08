@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     android:background="@null">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/popupCardView"
         android:layout_width="wrap_content"
