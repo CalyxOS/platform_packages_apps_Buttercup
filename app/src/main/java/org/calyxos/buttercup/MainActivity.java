@@ -3,6 +3,7 @@ package org.calyxos.buttercup;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.calyxos.buttercup.databinding.ActivityMainBinding;
@@ -19,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialogFragment dialog;
     private String message = "";
     private boolean resumeDialog = false;
+
+    private static final String BODY = "body";
+    private static final String SUBJECT = "subject";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,6 +186,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
+
+        if (savedInstanceState != null) {
+            String subject = savedInstanceState.getString(SUBJECT);
+            String body = savedInstanceState.getString(BODY);
+            binding.subjectEdit.setText(subject != null? subject : "");
+            binding.bodyEdit.setText(body != null? body : "");
+
+            savedInstanceState.clear();
+        }
     }
 
     @Override
@@ -199,5 +212,13 @@ public class MainActivity extends AppCompatActivity {
     private void showDialogOnResume(String message) {
         resumeDialog = true;
         this.message = message;
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(SUBJECT, binding.subjectEdit.getText().toString());
+        outState.putString(BODY, binding.bodyEdit.getText().toString());
+
+        super.onSaveInstanceState(outState);
     }
 }
