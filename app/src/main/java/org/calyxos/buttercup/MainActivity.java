@@ -53,17 +53,12 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        feedbackViewModel = new FeedbackViewModel();
+        feedbackViewModel = FeedbackViewModel.getFeedbackViewModel();
 
         adapter = new FileAdapter(this, feedbackViewModel);
         binding.attachmentsList.setAdapter(adapter);
 
         dialog = new AlertDialogFragment();
-
-        feedbackViewModel.getScreenshots().observe(this, images -> {
-            adapter.addFileList(images);
-            adapter.notifyDataSetChanged();
-        });
 
         FeedbackNotification feedbackNotification = new FeedbackNotification(this);
         RequestListener requestListener = new RequestListener() {
@@ -246,14 +241,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        //Retrieve screenshot image sent
-        feedbackViewModel.processScreenshot(this, intent);
-    }
-
     private void startPopupService(int resultCode, Intent data) {
         Intent serviceIntent = new Intent(MainActivity.this, PopupWindowService.class);
         serviceIntent.putExtra(Constants.RESULT_CODE, resultCode);
@@ -267,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 popupService = binder.getService();
                 startForegroundService(serviceIntent);
                 popupService.startForeground(Constants.SCREENSHOT_NOTIFICATION_ID, popupService.getNotification());
+                popupService.setViewModel(feedbackViewModel);
             }
 
             @Override
@@ -317,6 +305,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        feedbackViewModel.getScreenshots().observe(this, images -> {
+            adapter.addFileList(images);
+            adapter.notifyDataSetChanged();
+        });
+
         if (resumeDialog) {
             if (dialog == null)
                 dialog = new AlertDialogFragment();

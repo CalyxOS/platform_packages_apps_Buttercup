@@ -2,6 +2,7 @@ package org.calyxos.buttercup.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -51,9 +52,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.ViewHolder> {
                 feedbackViewModel.removeFromFileList(fileList.get(holder.getAdapterPosition())));
 
         holder.binding.image.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ImagePreviewActivity.class);
-            intent.putExtra(Constants.SCREENSHOT_IMAGE, image.getDataBytes());
-            context.startActivity(intent);
+            if (image.getDataBytes() != null) {
+                Intent intent = new Intent(context, ImagePreviewActivity.class);
+                intent.putExtra(Constants.SCREENSHOT_IMAGE_NAME, image.getFileName());
+                context.startActivity(intent);
+            } else Log.e("FileAdapter", "Image is null for some reason");
         });
     }
 

@@ -7,6 +7,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.calyxos.buttercup.databinding.ActivityImagePreviewBinding;
+import org.calyxos.buttercup.model.FeedbackViewModel;
+import org.calyxos.buttercup.model.Image;
+
+import java.util.List;
 
 public class ImagePreviewActivity extends AppCompatActivity {
 
@@ -19,8 +23,12 @@ public class ImagePreviewActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         Intent intent = getIntent();
-        byte[] bytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
-
-        binding.image.setImageBitmap(FileUtils.getBitmap(bytes));
+        String name = intent.getStringExtra(Constants.SCREENSHOT_IMAGE_NAME);
+        List<Image> imageList = FeedbackViewModel.getFeedbackViewModel().getScreenshots().getValue();
+        if (imageList != null)
+            imageList.forEach(image -> {
+                if (image.getFileName().equals(name))
+                    binding.image.setImageBitmap(FileUtils.getBitmap(image.getDataBytes()));
+            });
     }
 }

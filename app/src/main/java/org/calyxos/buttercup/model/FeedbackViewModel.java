@@ -33,8 +33,17 @@ public class FeedbackViewModel extends ViewModel {
     private MutableLiveData<List<Image>> mutableLiveData;
     private final List<Image> fileList = new ArrayList<>();
 
-    public FeedbackViewModel() {
+    private static FeedbackViewModel feedbackViewModel = null;
+
+    private FeedbackViewModel() {
         repo = new Repository();
+    }
+
+    public static FeedbackViewModel getFeedbackViewModel() {
+        if (feedbackViewModel == null)
+            feedbackViewModel = new FeedbackViewModel();
+
+        return feedbackViewModel;
     }
 
     public void submitFeedback(Context context, String subject, String body, RequestListener requestListener) {
@@ -100,6 +109,13 @@ public class FeedbackViewModel extends ViewModel {
                     mutableLiveData.setValue(fileList);
                 }
             }
+        }
+    }
+
+    public void addNewScreenshot(Image image) {
+        if (image != null) {
+            fileList.add(image);
+            mutableLiveData.setValue(fileList);
         }
     }
 

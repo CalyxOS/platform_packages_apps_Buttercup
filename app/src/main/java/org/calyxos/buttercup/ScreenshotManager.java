@@ -16,6 +16,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
@@ -131,6 +132,7 @@ public class ScreenshotManager extends Activity implements ImageReader.OnImageAv
             Intent intent = new Intent(ACTION_CAPTURE_SUCCESS);
             intent.putExtra(Constants.SCREENSHOT_IMAGE, FileUtils.getBytes(bitmap));
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            Log.e(TAG, "Screenshot Image Broadcast sent.");
 
         } else {
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_CAPTURE_FAILED));
@@ -150,12 +152,14 @@ public class ScreenshotManager extends Activity implements ImageReader.OnImageAv
     @Override
     protected void onStop() {
         super.onStop();
+        Log.e(TAG, "Screenshot Activity stopped.");
         stop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.e(TAG, "Screenshot Activity destroyed.");
         stop();
     }
 

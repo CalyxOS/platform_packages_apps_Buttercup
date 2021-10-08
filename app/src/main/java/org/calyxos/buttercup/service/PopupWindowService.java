@@ -9,26 +9,39 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.calyxos.buttercup.Constants;
+import org.calyxos.buttercup.FileUtils;
 import org.calyxos.buttercup.MainActivity;
 import org.calyxos.buttercup.PopupWindow;
 import org.calyxos.buttercup.R;
+import org.calyxos.buttercup.model.FeedbackViewModel;
+import org.calyxos.buttercup.model.Image;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Notification.EXTRA_NOTIFICATION_ID;
+import static org.calyxos.buttercup.ScreenshotManager.ACTION_CAPTURE_FAILED;
+import static org.calyxos.buttercup.ScreenshotManager.ACTION_CAPTURE_SUCCESS;
 
 public class PopupWindowService extends Service {
 
     private static final String TAG = PopupWindowService.class.getSimpleName();
     private static PopupWindowService instance;
     private PopupWindow mPopupWindow;
+    private FeedbackViewModel feedbackViewModel;
 
     public class ServiceBinder extends Binder {
         public PopupWindowService getService() {
@@ -41,6 +54,53 @@ public class PopupWindowService extends Service {
     @Override
     public void onCreate() {
         instance = this;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            mPopupWindow = new PopupWindow(this);
+            mPopupWindow.setCapturePermIntent(intent.getParcelableExtra(Constants.PERMISSION_DATA),
+                    intent.getIntExtra(Constants.RESULT_CODE, Activity.RESULT_CANCELED));
+            mPopupWindow.show();
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(ACTION_CAPTURE_SUCCESS);
+            filter.addAction(ACTION_CAPTURE_FAILED);
+
+            BroadcastReceiver mReceiver = getBroadcastReceiver();
+            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, filter);
+        } else return START_NOT_STICKY;
+        return START_STICKY;
+    }
+
+    private BroadcastReceiver getBroadcastReceiver() {
+        return new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                switch (action) {
+                    case ACTION_CAPTURE_SUCCESS: {
+                        byte[] bitmapBytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
+
+                        feedbackViewModel.addNewScreenshot(FileUtils.getImage(context, bitmapBytes));
+                        //TODO send notification
+                        break;
+                    }
+
+                    case ACTION_CAPTURE_FAILED: {
+                        Log.d(TAG, "Error occurred while capturing screen for some reason.");
+                        Toast.makeText(context, getString(R.string.screen_capture_failed), Toast.LENGTH_LONG).show();
+                        break;
+                    }
+                }
+            }
+        };
+    }
+
+    public void setViewModel(FeedbackViewModel viewModel) {
+        feedbackViewModel = viewModel;
     }
 
     public static PopupWindowService getInstance() {
@@ -84,17 +144,6 @@ public class PopupWindowService extends Service {
         notificationManager.createNotificationChannel(channel);
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            mPopupWindow = new PopupWindow(this);
-            mPopupWindow.setCapturePermIntent(intent.getParcelableExtra(Constants.PERMISSION_DATA),
-                    intent.getIntExtra(Constants.RESULT_CODE, Activity.RESULT_CANCELED));
-            mPopupWindow.show();
-        }
-        return START_STICKY;
-    }
-
     private PendingIntent getPendingIntent() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -127,6 +176,7 @@ public class PopupWindowService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestroy called");
         mPopupWindow.close();
+        feedbackViewModel = null;
         stopForeground(true);
     }
 

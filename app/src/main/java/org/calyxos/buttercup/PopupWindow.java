@@ -31,7 +31,7 @@ public class PopupWindow {
     private Intent capturePermIntent;
     private int resultCode;
 
-    private BroadcastReceiver mReceiver;
+    private final BroadcastReceiver mReceiver;
 
     public PopupWindow(Context context) {
         mContext = context;
@@ -88,21 +88,10 @@ public class PopupWindow {
                 public void onReceive(Context context, Intent intent) {
                     final String action = intent.getAction();
                     switch (action) {
-                        case ACTION_CAPTURE_SUCCESS: {
-                            byte[] bitmapBytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
-                            //launch/restart main activity for screenshot submission
-                            Intent newIntent = new Intent(mContext, MainActivity.class);
-                            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            newIntent.putExtra(Constants.SCREENSHOT_IMAGE, bitmapBytes);
-                            mContext.startActivity(newIntent);
-
-                            snapBtn.setVisibility(View.VISIBLE);
-                            break;
-                        }
+                        case ACTION_CAPTURE_SUCCESS:
 
                         case ACTION_CAPTURE_FAILED: {
-                            Log.d(TAG, "Error occurred while capturing screen for some reason.");
-                            Toast.makeText(mContext, mContext.getString(R.string.screen_capture_failed), Toast.LENGTH_LONG).show();
+
                             snapBtn.setVisibility(View.VISIBLE);
                             break;
                         }
