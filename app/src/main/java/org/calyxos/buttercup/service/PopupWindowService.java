@@ -85,7 +85,7 @@ public class PopupWindowService extends Service {
                         byte[] bitmapBytes = intent.getByteArrayExtra(Constants.SCREENSHOT_IMAGE);
 
                         feedbackViewModel.addNewScreenshot(FileUtils.getImage(context, bitmapBytes));
-                        //TODO send notification
+                        showCapturedNotification();
                         break;
                     }
 
@@ -157,6 +157,37 @@ public class PopupWindowService extends Service {
         stopIntent.putExtra(EXTRA_NOTIFICATION_ID, Constants.SCREENSHOT_NOTIFICATION_ID);
         stopIntent.setClass(this, StopActionReceiver.class);
         return PendingIntent.getBroadcast(this, 12, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private void showCapturedNotification() {
+        createCapturedNotificationChannel();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL_ID_3)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(getString(R.string.new_screenshot_taken))
+                .setContentText(getString(R.string.capture_information))
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(getString(R.string.capture_information)))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setContentIntent(getPendingIntent())
+                .setAutoCancel(true);
+
+        Notification notification = builder.build();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(Constants.SCREENSHOT_NOTIFICATION_ID_1, notification);
+
+    }
+
+    private void createCapturedNotificationChannel() {
+        CharSequence name = getString(R.string.screenshot_captured_notification_channel_name);
+        String description = getString(R.string.screenshot_captured_notification_channel_description);
+        int importance = NotificationManager.IMPORTANCE_LOW;
+        NotificationChannel channel = new NotificationChannel(Constants.NOTIFICATION_CHANNEL_ID_3, name, importance);
+        channel.setDescription(description);
+
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
     }
 
     public void stopService() {

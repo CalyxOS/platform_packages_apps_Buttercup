@@ -25,4 +25,8 @@ public class Constants {
     public static final String ACTION_STOP = "org.calyxos.buttercup.constants.STOP_SERVICE";
     public static final String RESULT_CODE = "result_code";
     public static final String PERMISSION_DATA = "permission_data";
+    public static final String NOTIFICATION_CHANNEL_ID_3 = "org.calyxos.buttercup.screenshot_captured_channel";
+    public static final int SCREENSHOT_NOTIFICATION_ID_1 = 11;
+    public static final String ACTION_VIEW = "org.calyxos.buttercup.constants.VIEW_SCREENSHOTS";
+    public static final String SCREENSHOT_IMAGE_NAME = "screenshot_image_name";
 }

@@ -33,6 +33,10 @@
     <string name="default_config_notification_desc">To screenshot click the floating button.</string>
     <string name="disable">Disable</string>
     <string name="screenshot_notification_channel_name">Buttercup Feedback Screenshot Channel</string>
+    <string name="screenshot_captured_notification_channel_name">Buttercup Feedback Screenshot Captured Channel</string>
     <string name="screenshot_notification_channel_description">Notification channel for screen capture</string>
+    <string name="screenshot_captured_notification_channel_description">Notification channel for the screenshot captured</string>
     <string name="screenshot_preview">Screenshot Preview</string>
+    <string name="new_screenshot_taken">New screenshot taken.</string>
+    <string name="capture_information">Click here to see new screenshot taken.</string>
 </resources>
